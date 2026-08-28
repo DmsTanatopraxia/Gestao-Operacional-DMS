@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>DMS Tanatopraxia | Gestão Operacional Funerária</title>
+<style>
+:root{
+  --navy:#0D1B3E;
+  --navy-2:#132352;
+  --navy-3:#1c2f66;
+  --gold:#C8A96E;
+  --gold-2:#D4AF37;
+  --gold-dark:#A9822F;
+  --paper:#F7F5F0;
+  --ink:#1B1B1B;
+  --muted:#6b6f7b;
+  --line:#e3ddcf;
+  --danger:#8c2f2f;
+  --danger-bg:#fbeaea;
+  --warn:#8a6a12;
+  --warn-bg:#fbf1d8;
+  --ok:#2f6d46;
+  --ok-bg:#e9f4ec;
+  --info-bg:#eef1fb;
+  --radius:10px;
+  --shadow:0 6px 18px rgba(13,27,62,.10);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"Segoe UI",Arial,Helvetica,sans-serif;
+  font-size:15px;
+  line-height:1.45;
+}
+h1,h2,h3,.brand,.section-title{font-family:Georgia,"Times New Roman",serif;}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#cfc7ac;border-radius:6px}
+
+/* ---------- App shell ---------- */
+#app{display:flex;min-height:100vh}
+
+/* Sidebar */
+#sidebar{
+  width:250px;flex:0 0 250px;background:linear-gradient(180deg,var(--navy),var(--navy-2) 60%, var(--navy-3));
+  color:#f2ecdd;position:sticky;top:0;height:100vh;overflow-y:auto;
+  display:flex;flex-direction:column;transition:transform .25s ease;z-index:40;
+}
+#sidebar .brand-box{padding:22px 18px 14px;border-bottom:1px solid rgba(212,175,55,.25)}
+#sidebar .brand{font-size:17px;letter-spacing:.03em;color:#fff;line-height:1.25}
+#sidebar .brand small{display:block;font-family:"Segoe UI",Arial,sans-serif;font-size:11px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-top:4px}
+nav#navlist{padding:10px 10px 20px;flex:1}
+nav#navlist button{
+  width:100%;text-align:left;background:transparent;border:none;color:#d9d4c2;
+  padding:10px 12px;border-radius:8px;display:flex;align-items:center;gap:10px;
+  font-size:13.5px;margin-bottom:2px;transition:.15s;
+}
+nav#navlist button .ic{font-size:16px;width:20px;text-align:center}
+nav#navlist button:hover{background:rgba(212,175,55,.12);color:#fff}
+nav#navlist button.active{background:var(--gold);color:var(--navy);font-weight:700}
+nav#navlist .grp-label{font-size:10.5px;letter-spacing:.12em;color:#9aa0b8;text-transform:uppercase;margin:14px 10px 6px}
+#sidebar .foot{padding:14px 18px;border-top:1px solid rgba(212,175,55,.2);font-size:11px;color:#a9a58f}
+
+/* Main */
+#main{flex:1;min-width:0;display:flex;flex-direction:column}
+header#topbar{
+  background:#fff;border-bottom:1px solid var(--line);padding:14px 22px;
+  display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:30;
+  box-shadow:0 2px 8px rgba(13,27,62,.04);
+}
+#hamburger{display:none;background:none;border:1px solid var(--line);border-radius:8px;width:38px;height:38px;font-size:18px}
+#topbar .titles{flex:1;min-width:0}
+#topbar h1{margin:0;font-size:19px;color:var(--navy)}
+#topbar .sub{font-size:11.5px;color:var(--muted);letter-spacing:.04em}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+.status-pill{font-size:11px;padding:5px 10px;border-radius:999px;background:var(--ok-bg);color:var(--ok);font-weight:600;display:flex;align-items:center;gap:6px}
+.status-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+
+main#content{padding:22px;flex:1}
+.section-title{font-size:22px;color:var(--navy);margin:0 0 4px}
+.section-desc{color:var(--muted);font-size:13px;margin:0 0 18px}
+
+/* Buttons */
+.btn{border:1px solid var(--line);background:#fff;color:var(--navy);padding:9px 14px;border-radius:8px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:7px}
+.btn:hover{border-color:var(--gold-2)}
+.btn-gold{background:var(--gold-2);border-color:var(--gold-2);color:var(--navy)}
+.btn-gold:hover{background:var(--gold-dark)}
+.btn-navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn-navy:hover{background:var(--navy-2)}
+.btn-danger{background:var(--danger-bg);border-color:#eccece;color:var(--danger)}
+.btn-sm{padding:5px 9px;font-size:12px;border-radius:6px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* KPI cards */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:22px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.kpi .n{font-size:30px;font-weight:700;color:var(--navy);font-family:Georgia,serif}
+.kpi .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.kpi.alert .n{color:var(--danger)}
+.kpi .bar{height:3px;border-radius:2px;background:var(--gold-2);margin-bottom:10px;width:34px}
+
+.grid-2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+@media(max-width:980px){.grid-2{grid-template-columns:1fr}}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.card h3{margin:0 0 12px;font-size:15px;color:var(--navy);border-bottom:1px solid var(--line);padding-bottom:8px}
+
+/* Table toolbar */
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.search-box{flex:1;min-width:180px;max-width:320px;position:relative}
+.search-box input{width:100%;padding:9px 12px 9px 30px;border:1px solid var(--line);border-radius:8px;font-size:13px}
+.search-box:before{content:'🔎';position:absolute;left:9px;top:8px;font-size:12px;opacity:.6}
+
+.table-wrap{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+thead th{background:var(--navy);color:#f2ecdd;text-align:left;padding:10px 12px;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:hover{background:#faf8f2}
+tbody tr:last-child td{border-bottom:none}
+.actions-cell{white-space:nowrap;text-align:right}
+.empty-row td{text-align:center;color:var(--muted);padding:30px;font-style:italic}
+
+.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.badge-ok{background:var(--ok-bg);color:var(--ok)}
+.badge-warn{background:var(--warn-bg);color:var(--warn)}
+.badge-danger{background:var(--danger-bg);color:var(--danger)}
+.badge-info{background:var(--info-bg);color:var(--navy)}
+.badge-muted{background:#eee;color:#666}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(13,20,40,.55);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:30px 16px;overflow-y:auto}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;max-width:640px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.35);animation:pop .15s ease}
+@keyframes pop{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.modal-head h3{margin:0;font-size:17px;color:var(--navy)}
+.modal-close{background:none;border:none;font-size:20px;color:var(--muted)}
+.modal-body{padding:20px 22px;display:grid;grid-template-columns:1fr 1fr;gap:14px;max-height:65vh;overflow-y:auto}
+.modal-body .full{grid-column:1/-1}
+.field label{display:block;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;font-weight:600}
+.field input,.field select,.field textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;font-size:13.5px;font-family:inherit;background:#fffdf9}
+.field textarea{resize:vertical;min-height:60px}
+.modal-foot{padding:16px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px}
+
+/* Config lists */
+.cfg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.cfg-list{list-style:none;margin:0;padding:0}
+.cfg-list li{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.cfg-list li button{background:none;border:none;color:var(--danger);font-size:14px}
+.cfg-add{display:flex;gap:6px;margin-top:10px}
+.cfg-add input{flex:1;padding:7px 9px;border:1px solid var(--line);border-radius:6px;font-size:12.5px}
+
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
+.msg-toast{position:fixed;bottom:20px;right:20px;background:var(--navy);color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.3);z-index:200;opacity:0;transform:translateY(10px);transition:.2s}
+.msg-toast.show{opacity:1;transform:translateY(0)}
+
+.report-block{margin-bottom:22px}
+.report-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.report-row b{color:var(--navy)}
+
+footer#appfoot{padding:16px 22px;text-align:center;color:var(--muted);font-size:11.5px;border-top:1px solid var(--line);background:#fff}
+
+/* Backdrop for mobile sidebar */
+#backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:35}
+
+@media(max-width:900px){
+  #sidebar{position:fixed;left:0;top:0;transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.3)}
+  #sidebar.open{transform:translateX(0)}
+  #backdrop.open{display:block}
+  #hamburger{display:inline-flex;align-items:center;justify-content:center}
+  .modal-body{grid-template-columns:1fr}
+  #topbar h1{font-size:16px}
+}
+
+/* Print */
+@media print{
+  #sidebar,#topbar,.toolbar .search-box,.actions-cell,#backdrop,.msg-toast,footer#appfoot,.top-actions{display:none !important}
+  main#content{padding:0}
+  body{background:#fff}
+  .card,.table-wrap,.kpi{box-shadow:none;border:1px solid #999}
+  thead th{background:#eee !important;color:#000 !important}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="backdrop" onclick="closeSidebar()"></div>
+  <aside id="sidebar">
+    <div class="brand-box">
+      <div class="brand" style="color:var(--gold);font-size:15px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">DMS Tanatopraxia</div>
+      <div class="brand">Gestão Operacional<br>Funerária</div>
+      <small>Central Operacional 24H</small>
+    </div>
+    <nav id="navlist"></nav>
+    <div class="foot">Sistema 100% offline<br>Dados salvos neste dispositivo</div>
+  </aside>
+
+  <div id="main">
+    <header id="topbar">
+      <button id="hamburger" onclick="toggleSidebar()">☰</button>
+      <div class="titles">
+        <h1 id="pageTitle">Dashboard</h1>
+        <div class="sub" id="pageSub">Visão geral e indicadores</div>
+      </div>
+      <div class="top-actions">
+        <span class="status-pill"><span class="dot"></span> Offline / Local</span>
+        <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="btn" onclick="exportBackup()">⬇️ Backup</button>
+        <button class="btn" onclick="document.getElementById('importFile').click()">⬆️ Restaurar</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">
+      </div>
+    </header>
+
+    <main id="content"></main>
+    <footer id="appfoot">Plataforma DMS Tanatopraxia · Sistema de Gestão Operacional de Serviços Funerários — uso interno · todos os dados ficam salvos apenas neste navegador/dispositivo</footer>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">Registro</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveRecord()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="msg-toast" id="toast"></div>
+
+<script>
+/* ==========================================================================
+   GESTÃO OPERACIONAL FUNERÁRIA — App offline (localStorage, single file)
+   ========================================================================== */
+
+const DB_KEY = 'funeraria_gestao_db_v1';
+
+function defaultConfig(){
+  return {
+    statusServico:['AGUARDANDO','EM ANDAMENTO','CONCLUÍDO','CANCELADO'],
+    prioridade:['URGENTE','ALTA','MÉDIA','BAIXA'],
+    statusTarefa:['PENDENTE','EM ANDAMENTO','CONCLUÍDO'],
+    statusLab:['AGUARDANDO','EM PREPARAÇÃO','EM TANATOPRAXIA','LIBERADO','FINALIZADO'],
+    statusVeiculo:['DISPONÍVEL','EM SERVIÇO','EM MANUTENÇÃO','INDISPONÍVEL'],
+    tiposOcorrencia:['Atraso','Falha operacional','Problema veículo','Problema urna','Outros'],
+    turnos:['Diurno 12h','Noturno 12h','Administrativo 8h','Folga','Férias']
+  };
+}
+
+function seedData(){
+  return {
+    servicos:[
+      {id:'SRV-2026-001',data:todayISO(),falecido:'João Carlos Silva',idade:74,causa:'Parada Cardíaca',origem:'Hospital Central',responsavelNome:'Maria Silva',telefone:'(31) 98888-1111',parentesco:'Esposa',tipoAtendimento:'Particular',status:'EM ANDAMENTO',responsavelOp:'Carlos Oliveira'}
+    ],
+    tarefas:[
+      {id:'TAR-101',servicoId:'SRV-2026-001',data:todayISO(),setor:'Laboratório',descricao:'Realizar Tanatopraxia e Restauração',responsavel:'Dr. André',prioridade:'URGENTE',prazo:'16:00',status:'EM ANDAMENTO'}
+    ],
+    tanatopraxia:[],
+    urnas:[
+      {id:'URN-001',modelo:'Urna Imperial Nobre',tamanho:'Adulto Padrão',acabamento:'Verniz Luxo / Varão Dourado',estoqueAtual:8,estoqueMinimo:3,reservadas:2}
+    ],
+    veiculos:[
+      {id:'VEI-001',placa:'ABC-1234',modelo:'Mercedes-Benz Funeral',tipo:'Cortejo Luxo',km:45200,responsavel:'Marcos',higienizacao:'OK',combustivel:'100%',status:'EM SERVIÇO'}
+    ],
+    km:[],
+    velorios:[],
+    sepult:[],
+    equipe:[],
+    ocorrencias:[],
+    estoque:[
+      {id:'MAT-001',descricao:'Fluido Arterial Conservante',categoria:'Químico Tanato',unidade:'Litros',estoqueAtual:45,estoqueMinimo:15}
+    ],
+    config: defaultConfig(),
+    counters:{}
+  };
+}
+
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(DB_KEY);
+    if(!raw) { const d = seedData(); saveDB(d); return d; }
+    const d = JSON.parse(raw);
+    if(!d.config) d.config = defaultConfig();
+    if(!d.counters) d.counters = {};
+    return d;
+  }catch(e){
+    console.error('Erro ao carregar dados, iniciando novo banco local.', e);
+    const d = seedData(); saveDB(d); return d;
+  }
+}
+function saveDB(d){ localStorage.setItem(DB_KEY, JSON.stringify(d)); }
+
+let DB = loadDB();
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function nowTime(){ return new Date().toTimeString().slice(0,5); }
+function fmtDate(iso){ if(!iso) return '—'; const p=iso.split('-'); return p.length===3? `${p[2]}/${p[1]}/${p[0]}`:iso; }
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(window.__toastTimer); window.__toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+function nextId(prefix, moduleKey){
+  DB.counters[moduleKey] = (DB.counters[moduleKey]||0)+1;
+  const year = new Date().getFullYear();
+  const n = String(DB.counters[moduleKey]).padStart(3,'0');
+  return `${prefix}-${year}-${n}`;
+}
+function optionsFrom(cfgKey){ return DB.config[cfgKey]||[]; }
+function servicoOptions(){ return DB.servicos.map(s=>({value:s.id,label:`${s.id} — ${s.falecido}`})); }
+
+/* ---------------------------- Module definitions ---------------------------- */
+const MODULES = {
+  dashboard:{label:'Dashboard',icon:'📊',group:'Painel'},
+  servicos:{label:'Serviços',icon:'⚰️',group:'Operação',prefix:'SRV',
+    fields:[
+      {key:'data',label:'Data',type:'date',required:true,default:()=>todayISO()},
+      {key:'falecido',label:'Nome do Falecido',type:'text',required:true,full:true},
+      {key:'idade',label:'Idade',type:'number'},
+      {key:'causa',label:'Causa Mortis',type:'text'},
+      {key:'origem',label:'Hospital/Origem',type:'text'},
+      {key:'responsavelNome',label:'Nome Responsável',type:'text'},
+      {key:'telefone',label:'Telefone',type:'text'},
+      {key:'parentesco',label:'Parentesco',type:'text'},
+      {key:'tipoAtendimento',label:'Tipo Atendimento',type:'select',options:['Particular','Convênio']},
+      {key:'status',label:'Status Serviço',type:'select',cfg:'statusServico'},
+      {key:'responsavelOp',label:'Responsável Operacional',type:'text'},
+    ],
+    columns:[['id','Nº'],['data','Data',fmtDate],['falecido','Falecido'],['tipoAtendimento','Tipo'],['status','Status','badge'],['responsavelOp','Responsável']]
+  },
+  tarefas:{label:'Tarefas',icon:'📋',group:'Operação',prefix:'TAR',
+    fields:[
+      {key:'servicoId',label:'Nº Serviço',type:'select',dynOptions:servicoOptions},
+      {key:'data',label:'Data',type:'date',default:()=>todayISO()},
+      {key:'setor',label:'Setor',type:'text'},
+      {key:'descricao',label:'Descrição da Tarefa',type:'text',required:true,full:true},
+      {key:'responsavel',label:'Responsável',type:'text'},
+      {key:'prioridade',label:'Prioridade',type:'select',cfg:'prioridade'},
+      {key:'prazo',label:'Prazo (Hora)',type:'time'},
+      {key:'status',label:'Status',type:'select',cfg:'statusTarefa'},
+    ],
+    columns:[['id','Nº'],['servicoId','Serviço'],['descricao','Descrição'],['responsavel','Responsável'],['prioridade','Prioridade','badge'],['prazo','Prazo'],['status','Status','badge']]
+  },
+  pendencias:{label:'Pendências',icon:'⚠️',group:'Painel'},
+  tanatopraxia:{label:'Tanatopraxia',icon:'🧪',group:'Operação',prefix:'LAB',
+    fields:[
+      {key:'servicoId',label:'Nº Serviço',type:'select',dynOptions:servicoOptions},
+      {key:'entradaData',label:'Entrada — Data',type:'date',default:()=>todayISO()},
+      {key:'entradaHora',label:'Entrada — Hora',type:'time',default:()=>nowTime()},
+      {key:'tanatopraxia',label:'Tanatopraxia',type:'select',options:['SIM','NÃO']},
+      {key:'embalsamamento',label:'Embalsamamento',type:'select',options:['SIM','NÃO']},
+      {key:'higienizacao',label:'Higienização',type:'select',options:['SIM','NÃO']},
+      {key:'vestimenta',label:'Vestimenta',type:'select',options:['SIM','NÃO','AGUARDANDO']},
+      {key:'restauracao',label:'Restauração Estética',type:'select',options:['SIM','NÃO']},
+      {key:'statusLab',label:'Status Laboratório',type:'select',cfg:'statusLab'},
+      {key:'tecnico',label:'Responsável Técnico',type:'text'},
+    ],
+    columns:[['id','Nº'],['servicoId','Serviço'],['entradaData','Entrada',fmtDate],['statusLab','Status','badge'],['tecnico','Técnico']]
+  },
+  urnas:{label:'Urnas',icon:'📦',group:'Estoque',prefix:'URN',
+    fields:[
+      {key:'modelo',label:'Modelo da Urna',type:'text',required:true,full:true},
+      {key:'tamanho',label:'Tamanho',type:'text'},
+      {key:'acabamento',label:'Acabamento',type:'text'},
+      {key:'estoqueAtual',label:'Estoque Atual',type:'number'},
+      {key:'estoqueMinimo',label:'Estoque Mínimo',type:'number'},
+      {key:'reservadas',label:'Reservadas',type:'number'},
+    ],
+    columns:[['id','Cód.'],['modelo','Modelo'],['tamanho','Tamanho'],['estoqueAtual','Estoque'],['estoqueMinimo','Mínimo'],['__disp','Disponível'],['__alerta','Alerta','badge']]
+  },
+  veiculos:{label:'Veículos',icon:'🚐',group:'Frota',prefix:'VEI',
+    fields:[
+      {key:'placa',label:'Placa',type:'text',required:true},
+      {key:'modelo',label:'Modelo do Veículo',type:'text'},
+      {key:'tipo',label:'Tipo',type:'text'},
+      {key:'km',label:'KM Atual',type:'number'},
+      {key:'responsavel',label:'Responsável',type:'text'},
+      {key:'higienizacao',label:'Higienização',type:'select',options:['OK','PENDENTE']},
+      {key:'combustivel',label:'Nível Combustível',type:'text'},
+      {key:'status',label:'Status do Veículo',type:'select',cfg:'statusVeiculo'},
+    ],
+    columns:[['id','Cód.'],['placa','Placa'],['modelo','Modelo'],['km','KM'],['status','Status','badge']]
+  },
+  km:{label:'Km / Viagens',icon:'🛣️',group:'Frota',prefix:'VIA',
+    fields:[
+      {key:'data',label:'Data',type:'date',default:()=>todayISO()},
+      {key:'veiculo',label:'Veículo / Placa',type:'text'},
+      {key:'motorista',label:'Motorista',type:'text'},
+      {key:'servicoId',label:'Nº Serviço',type:'select',dynOptions:servicoOptions},
+      {key:'kmInicial',label:'KM Inicial',type:'number'},
+      {key:'kmFinal',label:'KM Final',type:'number'},
+      {key:'destino',label:'Destino / Motivo',type:'text',full:true},
+    ],
+    columns:[['id','Nº'],['data','Data',fmtDate],['veiculo','Veículo'],['motorista','Motorista'],['__kmp','KM Percorrida'],['destino','Destino']]
+  },
+  velorios:{label:'Velórios',icon:'🕯️',group:'Operação',prefix:'VEL',
+    fields:[
+      {key:'servicoId',label:'Nº Serviço',type:'select',dynOptions:servicoOptions},
+      {key:'sala',label:'Sala / Local',type:'text'},
+      {key:'dataInicio',label:'Data Início',type:'date',default:()=>todayISO()},
+      {key:'horaInicio',label:'Hora Início',type:'time'},
+      {key:'horaTermino',label:'Hora / Data Término',type:'text'},
+      {key:'responsavelSala',label:'Responsável pela Sala',type:'text'},
+      {key:'status',label:'Status da Sala',type:'text'},
+    ],
+    columns:[['id','Nº'],['servicoId','Serviço'],['sala','Sala/Local'],['dataInicio','Data',fmtDate],['horaInicio','Hora'],['status','Status','badge']]
+  },
+  sepult:{label:'Sepult./Crem.',icon:'✝️',group:'Operação',prefix:'SEP',
+    fields:[
+      {key:'servicoId',label:'Nº Serviço',type:'select',dynOptions:servicoOptions},
+      {key:'tipoOperacao',label:'Tipo de Operação',type:'select',options:['SEPULTAMENTO','CREMAÇÃO']},
+      {key:'local',label:'Cemitério / Crematório',type:'text'},
+      {key:'data',label:'Data',type:'date',default:()=>todayISO()},
+      {key:'hora',label:'Hora Agendada',type:'time'},
+      {key:'veiculo',label:'Cortejo / Veículo',type:'text'},
+      {key:'statusLiberacao',label:'Status de Liberação',type:'text'},
+    ],
+    columns:[['id','Nº'],['servicoId','Serviço'],['tipoOperacao','Tipo','badge'],['local','Local'],['data','Data',fmtDate],['statusLiberacao','Liberação']]
+  },
+  equipe:{label:'Equipe',icon:'👥',group:'Frota',prefix:'COL',
+    fields:[
+      {key:'nome',label:'Colaborador',type:'text',required:true,full:true},
+      {key:'cargo',label:'Cargo / Função',type:'text'},
+      {key:'setor',label:'Setor',type:'text'},
+      {key:'telefone',label:'Telefone de Plantão',type:'text'},
+      {key:'turno',label:'Turno Habitual',type:'select',cfg:'turnos'},
+      {key:'statusHoje',label:'Status Hoje',type:'select',options:['EM PLANTÃO','FOLGA','FÉRIAS']},
+    ],
+    columns:[['id','Cód.'],['nome','Colaborador'],['cargo','Cargo'],['setor','Setor'],['turno','Turno'],['statusHoje','Status Hoje','badge']]
+  },
+  ocorrencias:{label:'Ocorrências',icon:'⚠️',group:'Operação',prefix:'OCO',
+    fields:[
+      {key:'data',label:'Data',type:'date',default:()=>todayISO()},
+      {key:'hora',label:'Hora',type:'time',default:()=>nowTime()},
+      {key:'servicoId',label:'Nº Serviço',type:'select',dynOptions:servicoOptions},
+      {key:'setor',label:'Setor',type:'text'},
+      {key:'tipo',label:'Tipo de Ocorrência',type:'select',cfg:'tiposOcorrencia'},
+      {key:'descricao',label:'Descrição Detalhada',type:'textarea',full:true},
+      {key:'providencia',label:'Providência Tomada',type:'textarea',full:true},
+      {key:'status',label:'Status de Solução',type:'select',options:['ABERTO','EM ANÁLISE','RESOLVIDO']},
+    ],
+    columns:[['id','Nº'],['data','Data',fmtDate],['tipo','Tipo'],['setor','Setor'],['status','Status','badge']]
+  },
+  estoque:{label:'Estoque',icon:'🛒',group:'Estoque',prefix:'MAT',
+    fields:[
+      {key:'descricao',label:'Descrição do Produto',type:'text',required:true,full:true},
+      {key:'categoria',label:'Categoria',type:'text'},
+      {key:'unidade',label:'Unidade',type:'text'},
+      {key:'estoqueAtual',label:'Estoque Atual',type:'number'},
+      {key:'estoqueMinimo',label:'Estoque Mínimo',type:'number'},
+    ],
+    columns:[['id','Cód.'],['descricao','Produto'],['categoria','Categoria'],['estoqueAtual','Atual'],['estoqueMinimo','Mínimo'],['__reposicao','Reposição','badge']]
+  },
+  relatorios:{label:'Relatórios',icon:'📑',group:'Painel'},
+  config:{label:'Configurações',icon:'⚙️',group:'Painel'},
+};
+
+const NAV_GROUPS = ['Painel','Operação','Estoque','Frota'];
+
+/* ---------------------------- Navigation render ---------------------------- */
+let currentModule='dashboard', editingId=null;
+
+function buildNav(){
+  const nav=document.getElementById('navlist');
+  nav.innerHTML='';
+  NAV_GROUPS.forEach(group=>{
+    const keys = Object.keys(MODULES).filter(k=>MODULES[k].group===group);
+    if(!keys.length) return;
+    const lab=document.createElement('div'); lab.className='grp-label'; lab.textContent=group;
+    nav.appendChild(lab);
+    keys.forEach(k=>{
+      const b=document.createElement('button');
+      b.id='nav-'+k;
+      b.innerHTML=`<span class="ic">${MODULES[k].icon}</span> ${MODULES[k].label}`;
+      b.onclick=()=>navigate(k);
+      nav.appendChild(b);
+    });
+  });
+}
+
+function navigate(key){
+  currentModule=key;
+  document.querySelectorAll('#navlist button').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('nav-'+key); if(btn) btn.classList.add('active');
+  document.getElementById('pageTitle').textContent = MODULES[key].label;
+  document.getElementById('pageSub').textContent = pageSubtitle(key);
+  render();
+  closeSidebar();
+}
+function pageSubtitle(key){
+  const map={
+    dashboard:'Visão geral e indicadores operacionais',
+    pendencias:'Alertas automáticos gerados a partir dos dados do sistema',
+    relatorios:'Síntese gerencial operacional',
+    config:'Listas do sistema, backup e restauração'
+  };
+  return map[key] || 'Cadastro e acompanhamento';
+}
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('backdrop').classList.toggle('open'); }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('backdrop').classList.remove('open'); }
+
+/* ---------------------------- Derived / computed helpers ---------------------------- */
+function urnaComputed(r){
+  const disp = (r.estoqueAtual||0)-(r.reservadas||0);
+  const alerta = (r.estoqueAtual||0) <= (r.estoqueMinimo||0);
+  return {__disp:disp, __alerta: alerta? 'REPOR':'OK'};
+}
+function estoqueComputed(r){
+  const baixo=(r.estoqueAtual||0) <= (r.estoqueMinimo||0);
+  return {__reposicao: baixo? 'REPOR':'OK'};
+}
+function kmComputed(r){
+  const p=(r.kmFinal||0)-(r.kmInicial||0);
+  return {__kmp: (r.kmFinal&&r.kmInicial)? p : '—'};
+}
+function computedFor(moduleKey,row){
+  if(moduleKey==='urnas') return urnaComputed(row);
+  if(moduleKey==='estoque') return estoqueComputed(row);
+  if(moduleKey==='km') return kmComputed(row);
+  return {};
+}
+
+/* ---------------------------- Generic render ---------------------------- */
+function render(){
+  const c=document.getElementById('content');
+  if(currentModule==='dashboard'){ c.innerHTML = renderDashboard(); return; }
+  if(currentModule==='pendencias'){ c.innerHTML = renderPendencias(); return; }
+  if(currentModule==='relatorios'){ c.innerHTML = renderRelatorios(); return; }
+  if(currentModule==='config'){ c.innerHTML = renderConfig(); return; }
+  c.innerHTML = renderTableModule(currentModule);
+}
+
+function renderTableModule(key, filterText){
+  const mod=MODULES[key];
+  const rows = DB[key]||[];
+  const q=(filterText||'').toLowerCase();
+  const filtered = q? rows.filter(r=>JSON.stringify(r).toLowerCase().includes(q)) : rows;
+  let html = `
+    <div class="toolbar">
+      <div class="search-box"><input type="text" placeholder="Buscar em ${mod.label.toLowerCase()}..." oninput="onSearch(event,'${key}')" value="${filterText? escapeHtml(filterText):''}"></div>
+      <button class="btn btn-gold" onclick="openModal('${key}')">＋ Novo Registro</button>
+    </div>
+    <div class="table-wrap"><table><thead><tr>`;
+  mod.columns.forEach(col=> html += `<th>${col[1]}</th>`);
+  html += `<th></th></tr></thead><tbody>`;
+  if(!filtered.length){
+    html += `<tr class="empty-row"><td colspan="${mod.columns.length+1}">Nenhum registro cadastrado ainda. Clique em "Novo Registro" para começar.</td></tr>`;
+  } else {
+    filtered.slice().reverse().forEach(r=>{
+      const comp = computedFor(key,r);
+      html += `<tr>`;
+      mod.columns.forEach(col=>{
+        const [field,,fmt]=col;
+        let val = field.startsWith('__') ? comp[field] : r[field];
+        if(typeof fmt==='function') val = fmt(val);
+        else if(fmt==='badge') val = badgeFor(val);
+        else val = (val===undefined||val===null||val==='')? '—' : escapeHtml(String(val));
+        html += `<td>${val}</td>`;
+      });
+      html += `<td class="actions-cell">
+          <button class="btn btn-sm" onclick="openModal('${key}','${r.id}')">✎ Editar</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteRecord('${key}','${r.id}')">🗑</button>
+        </td></tr>`;
+    });
+  }
+  html += `</tbody></table></div>`;
+  return `<h2 class="section-title">${mod.icon} ${mod.label}</h2><p class="section-desc">${filtered.length} registro(s) — dados salvos automaticamente neste dispositivo.</p>` + html;
+}
+
+function onSearch(ev,key){
+  document.getElementById('content').innerHTML = renderTableModule(key, ev.target.value);
+  // refocus after re-render
+  const inp=document.querySelector('.search-box input');
+  if(inp){ inp.focus(); const v=inp.value; inp.value=''; inp.value=v; }
+}
+
+function badgeFor(val){
+  if(val===undefined||val===null||val==='') return '—';
+  const s=String(val).toUpperCase();
+  let cls='badge-info';
+  if(['CONCLUÍDO','LIBERADO','FINALIZADO','DISPONÍVEL','RESOLVIDO','OK','SIM','EM PLANTÃO'].includes(s)) cls='badge-ok';
+  else if(['AGUARDANDO','PENDENTE','EM ANÁLISE','MÉDIA','FOLGA'].includes(s)) cls='badge-warn';
+  else if(['CANCELADO','URGENTE','ALTA','EM MANUTENÇÃO','INDISPONÍVEL','REPOR','ABERTO','NÃO'].includes(s)) cls='badge-danger';
+  return `<span class="badge ${cls}">${escapeHtml(String(val))}</span>`;
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ---------------------------- Modal / CRUD ---------------------------- */
+function openModal(key,id){
+  editingId=id||null;
+  const mod=MODULES[key];
+  document.getElementById('modalTitle').textContent = (id? 'Editar — ':'Novo — ') + mod.label;
+  const body=document.getElementById('modalBody');
+  const record = id ? (DB[key].find(r=>r.id===id)||{}) : {};
+  let html='';
+  mod.fields.forEach(f=>{
+    const val = record[f.key] !== undefined ? record[f.key] : (f.default? f.default() : '');
+    html += `<div class="field ${f.full?'full':''}"><label>${f.label}${f.required?' *':''}</label>`;
+    if(f.type==='select'){
+      let opts=[];
+      if(f.cfg) opts = optionsFrom(f.cfg).map(o=>({value:o,label:o}));
+      else if(f.dynOptions) opts = f.dynOptions();
+      else if(f.options) opts = f.options.map(o=>({value:o,label:o}));
+      html += `<select id="fld_${f.key}"><option value="">— selecionar —</option>`;
+      opts.forEach(o=> html += `<option value="${escapeHtml(o.value)}" ${o.value===val?'selected':''}>${escapeHtml(o.label)}</option>`);
+      html += `</select>`;
+    } else if(f.type==='textarea'){
+      html += `<textarea id="fld_${f.key}">${escapeHtml(val||'')}</textarea>`;
+    } else {
+      html += `<input type="${f.type}" id="fld_${f.key}" value="${escapeHtml(val||'')}">`;
+    }
+    html += `</div>`;
+  });
+  body.innerHTML=html;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('overlay').dataset.moduleKey=key;
+}
+function closeModal(){ document.getElementById('overlay').classList.remove('open'); editingId=null; }
+
+function saveRecord(){
+  const key = document.getElementById('overlay').dataset.moduleKey;
+  const mod=MODULES[key];
+  const rec = editingId ? {...DB[key].find(r=>r.id===editingId)} : {};
+  let missing=null;
+  mod.fields.forEach(f=>{
+    const el=document.getElementById('fld_'+f.key);
+    const v = el.value;
+    if(f.required && !v) missing = f.label;
+    rec[f.key] = (f.type==='number') ? (v===''? '' : Number(v)) : v;
+  });
+  if(missing){ toast(`Preencha o campo obrigatório: ${missing}`); return; }
+  if(editingId){
+    const idx=DB[key].findIndex(r=>r.id===editingId);
+    DB[key][idx]=rec;
+    toast('Registro atualizado.');
+  } else {
+    rec.id = nextId(mod.prefix, key);
+    DB[key].push(rec);
+    toast('Registro criado.');
+  }
+  saveDB(DB);
+  closeModal();
+  render();
+}
+function deleteRecord(key,id){
+  if(!confirm('Excluir este registro? Esta ação não pode ser desfeita.')) return;
+  DB[key]=DB[key].filter(r=>r.id!==id);
+  saveDB(DB);
+  toast('Registro excluído.');
+  render();
+}
+
+/* ---------------------------- Dashboard ---------------------------- */
+function renderDashboard(){
+  const today=todayISO();
+  const servicosHoje = DB.servicos.filter(s=>s.data===today).length;
+  const emAndamento = DB.servicos.filter(s=>s.status==='EM ANDAMENTO').length;
+  const tarefasPendentes = DB.tarefas.filter(t=>t.status!=='CONCLUÍDO').length;
+  const veiculosDisp = DB.veiculos.filter(v=>v.status==='DISPONÍVEL').length;
+  const pend = calcPendencias();
+
+  const recentServicos = DB.servicos.slice(-5).reverse();
+  const recentTarefas = DB.tarefas.slice(-6).reverse();
+
+  return `
+  <h2 class="section-title">📊 Dashboard Gerencial</h2>
+  <p class="section-desc">Indicadores calculados em tempo real a partir dos dados cadastrados.</p>
+  <div class="kpis">
+    <div class="kpi"><div class="bar"></div><div class="n">${servicosHoje}</div><div class="l">Serviços Hoje</div></div>
+    <div class="kpi"><div class="bar"></div><div class="n">${emAndamento}</div><div class="l">Em Andamento</div></div>
+    <div class="kpi ${tarefasPendentes>0?'alert':''}"><div class="bar"></div><div class="n">${tarefasPendentes}</div><div class="l">Tarefas Pendentes</div></div>
+    <div class="kpi"><div class="bar"></div><div class="n">${veiculosDisp}</div><div class="l">Veículos Disponíveis</div></div>
+    <div class="kpi ${pend.length>0?'alert':''}"><div class="bar"></div><div class="n">${pend.length}</div><div class="l">Alertas / Pendências</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Últimos Serviços Cadastrados</h3>
+      ${recentServicos.length? tableMini(recentServicos,[['id','Nº'],['falecido','Falecido'],['data','Data',fmtDate],['status','Status','badge']]) : '<p class="hint">Nenhum serviço cadastrado ainda.</p>'}
+    </div>
+    <div class="card">
+      <h3>Tarefas Recentes</h3>
+      ${recentTarefas.length? tableMini(recentTarefas,[['descricao','Descrição'],['responsavel','Resp.'],['status','Status','badge']]) : '<p class="hint">Nenhuma tarefa cadastrada ainda.</p>'}
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>⚠️ Pendências em Destaque</h3>
+    ${pend.length? pend.slice(0,6).map(p=>`<div class="report-row"><span>${p.icon} ${escapeHtml(p.texto)}</span><span class="badge ${p.badge}">${p.tag}</span></div>`).join('') : '<p class="hint">Nenhuma pendência no momento. 👍</p>'}
+    ${pend.length>6? `<p class="hint">+ ${pend.length-6} outra(s) — veja em "Pendências".</p>`:''}
+  </div>`;
+}
+function tableMini(rows,cols){
+  let h='<table><thead><tr>'; cols.forEach(c=>h+=`<th>${c[1]}</th>`); h+='</tr></thead><tbody>';
+  rows.forEach(r=>{
+    h+='<tr>';
+    cols.forEach(c=>{
+      let v=r[c[0]];
+      if(typeof c[2]==='function') v=c[2](v);
+      else if(c[2]==='badge') v=badgeFor(v);
+      else v = (v===undefined||v===null||v==='')?'—':escapeHtml(String(v));
+      h+=`<td>${v}</td>`;
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  return h;
+}
+
+/* ---------------------------- Pendências (auto) ---------------------------- */
+function calcPendencias(){
+  const list=[];
+  DB.tarefas.forEach(t=>{
+    if(t.status!=='CONCLUÍDO'){
+      list.push({icon:'📋',texto:`Tarefa "${t.descricao}" — ${t.responsavel||'sem responsável'} (${t.status})`,tag:t.prioridade||'—',badge: t.prioridade==='URGENTE'?'badge-danger':'badge-warn'});
+    }
+  });
+  DB.urnas.forEach(u=>{
+    if((u.estoqueAtual||0) <= (u.estoqueMinimo||0)){
+      list.push({icon:'📦',texto:`Urna "${u.modelo}" abaixo do estoque mínimo (${u.estoqueAtual||0}/${u.estoqueMinimo||0})`,tag:'REPOR',badge:'badge-danger'});
+    }
+  });
+  DB.estoque.forEach(m=>{
+    if((m.estoqueAtual||0) <= (m.estoqueMinimo||0)){
+      list.push({icon:'🛒',texto:`Material "${m.descricao}" abaixo do estoque mínimo (${m.estoqueAtual||0}/${m.estoqueMinimo||0})`,tag:'REPOR',badge:'badge-danger'});
+    }
+  });
+  DB.veiculos.forEach(v=>{
+    if(v.status==='EM MANUTENÇÃO') list.push({icon:'🚐',texto:`Veículo ${v.placa} (${v.modelo||''}) em manutenção`,tag:'MANUTENÇÃO',badge:'badge-warn'});
+    if(v.higienizacao==='PENDENTE') list.push({icon:'🚐',texto:`Veículo ${v.placa} com higienização pendente`,tag:'PENDENTE',badge:'badge-warn'});
+  });
+  DB.ocorrencias.forEach(o=>{
+    if(o.status && o.status!=='RESOLVIDO') list.push({icon:'⚠️',texto:`Ocorrência (${o.tipo||'sem tipo'}) — ${o.status}`,tag:o.status,badge:'badge-danger'});
+  });
+  return list;
+}
+function renderPendencias(){
+  const pend=calcPendencias();
+  return `
+  <h2 class="section-title">⚠️ Central de Pendências e Alertas</h2>
+  <p class="section-desc">Gerado automaticamente a partir de tarefas em aberto, estoques abaixo do mínimo, veículos e ocorrências. Não é uma tabela manual — resolva o item de origem no respectivo módulo para que ele desapareça daqui.</p>
+  <div class="table-wrap"><table><thead><tr><th></th><th>Descrição</th><th>Situação</th></tr></thead><tbody>
+  ${pend.length? pend.map(p=>`<tr><td>${p.icon}</td><td>${escapeHtml(p.texto)}</td><td><span class="badge ${p.badge}">${p.tag}</span></td></tr>`).join('') : `<tr class="empty-row"><td colspan="3">Nenhuma pendência no momento. 👍</td></tr>`}
+  </tbody></table></div>`;
+}
+
+/* ---------------------------- Relatórios ---------------------------- */
+function renderRelatorios(){
+  const totalServicos=DB.servicos.length;
+  const andamento=DB.servicos.filter(s=>s.status==='EM ANDAMENTO').length;
+  const concluidos=DB.servicos.filter(s=>s.status==='CONCLUÍDO').length;
+  const tarefasCriticas=DB.tarefas.filter(t=>t.status!=='CONCLUÍDO' && (t.prioridade==='URGENTE'||t.prioridade==='ALTA')).length;
+  const tanatoRealizadas=DB.tanatopraxia.filter(t=>t.tanatopraxia==='SIM').length;
+  const veiculosManutencao=DB.veiculos.filter(v=>v.status==='EM MANUTENÇÃO').length;
+
+  return `
+  <h2 class="section-title">📑 Relatórios e Síntese Operacional</h2>
+  <p class="section-desc">Consolidação automática dos dados cadastrados no sistema. Use "Imprimir" no topo da página para gerar uma versão em papel.</p>
+  <div class="grid-2">
+    <div class="card report-block">
+      <h3>Síntese Geral</h3>
+      <div class="report-row"><span>Total de Serviços Cadastrados</span><b>${totalServicos}</b></div>
+      <div class="report-row"><span>Serviços em Andamento</span><b>${andamento}</b></div>
+      <div class="report-row"><span>Serviços Concluídos</span><b>${concluidos}</b></div>
+      <div class="report-row"><span>Tarefas Pendentes / Críticas</span><b>${tarefasCriticas}</b></div>
+      <div class="report-row"><span>Tanatopraxias Realizadas</span><b>${tanatoRealizadas}</b></div>
+      <div class="report-row"><span>Veículos em Manutenção</span><b>${veiculosManutencao}</b></div>
+    </div>
+    <div class="card report-block">
+      <h3>Estoques em Alerta</h3>
+      ${(()=>{
+        const urnasAlerta=DB.urnas.filter(u=>(u.estoqueAtual||0)<=(u.estoqueMinimo||0));
+        const matAlerta=DB.estoque.filter(m=>(m.estoqueAtual||0)<=(m.estoqueMinimo||0));
+        const all=[...urnasAlerta.map(u=>u.modelo),...matAlerta.map(m=>m.descricao)];
+        return all.length? all.map(a=>`<div class="report-row"><span>${escapeHtml(a)}</span><span class="badge badge-danger">REPOR</span></div>`).join('') : '<p class="hint">Nenhum item abaixo do estoque mínimo.</p>';
+      })()}
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h3>Equipe em Plantão Hoje</h3>
+    ${(()=>{
+      const emPlantao=DB.equipe.filter(e=>e.statusHoje==='EM PLANTÃO');
+      return emPlantao.length? tableMini(emPlantao,[['nome','Colaborador'],['cargo','Cargo'],['setor','Setor'],['telefone','Telefone']]) : '<p class="hint">Nenhum colaborador cadastrado como "Em Plantão".</p>';
+    })()}
+  </div>`;
+}
+
+/* ---------------------------- Config ---------------------------- */
+const CFG_LABELS={
+  statusServico:'Status de Serviço', prioridade:'Prioridade', statusTarefa:'Status de Tarefa',
+  statusLab:'Status de Laboratório', statusVeiculo:'Status de Veículo', tiposOcorrencia:'Tipos de Ocorrência', turnos:'Turnos'
+};
+function renderConfig(){
+  let html = `
+  <h2 class="section-title">⚙️ Configurações do Sistema</h2>
+  <p class="section-desc">Listas usadas nos formulários do sistema, backup local e restauração de dados.</p>
+  <div class="cfg-grid">`;
+  Object.keys(CFG_LABELS).forEach(key=>{
+    html += `<div class="card">
+      <h3>${CFG_LABELS[key]}</h3>
+      <ul class="cfg-list" id="cfglist_${key}">
+        ${DB.config[key].map((v,i)=>`<li>${escapeHtml(v)} <button onclick="removeCfg('${key}',${i})" title="Remover">✕</button></li>`).join('')}
+      </ul>
+      <div class="cfg-add">
+        <input type="text" id="cfgnew_${key}" placeholder="Novo item...">
+        <button class="btn btn-sm btn-gold" onclick="addCfg('${key}')">＋</button>
+      </div>
+    </div>`;
+  });
+  html += `</div>
+  <div class="card" style="margin-top:16px">
+    <h3>Backup e Restauração</h3>
+    <p class="hint">Todos os dados ficam salvos apenas neste navegador/dispositivo (não dependem de internet). Faça backup regularmente para não perder informações — o arquivo .json pode ser guardado ou movido para outro computador.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+      <button class="btn btn-navy" onclick="exportBackup()">⬇️ Baixar Backup (.json)</button>
+      <button class="btn" onclick="document.getElementById('importFile').click()">⬆️ Restaurar Backup</button>
+      <button class="btn btn-danger" onclick="resetAll()">🗑 Apagar Todos os Dados</button>
+    </div>
+  </div>`;
+  return html;
+}
+function addCfg(key){
+  const inp=document.getElementById('cfgnew_'+key);
+  const v=inp.value.trim();
+  if(!v) return;
+  if(!DB.config[key].includes(v)) DB.config[key].push(v);
+  saveDB(DB); render(); toast('Item adicionado.');
+}
+function removeCfg(key,idx){
+  DB.config[key].splice(idx,1);
+  saveDB(DB); render(); toast('Item removido.');
+}
+
+/* ---------------------------- Backup / Restore ---------------------------- */
+function exportBackup(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const stamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+  a.href=url; a.download=`backup-gestao-funeraria-${stamp}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Backup baixado.');
+}
+function importBackup(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data || typeof data!=='object') throw new Error('formato inválido');
+      if(!confirm('Restaurar este backup irá substituir todos os dados atuais. Deseja continuar?')) return;
+      DB = data;
+      if(!DB.config) DB.config=defaultConfig();
+      if(!DB.counters) DB.counters={};
+      saveDB(DB);
+      toast('Backup restaurado com sucesso.');
+      navigate('dashboard');
+    }catch(err){
+      alert('Não foi possível ler este arquivo de backup. Verifique se é um .json exportado por este sistema.');
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value='';
+}
+function resetAll(){
+  if(!confirm('Isso vai apagar TODOS os dados cadastrados neste dispositivo, sem possibilidade de desfazer. Deseja continuar?')) return;
+  if(!confirm('Tem certeza mesmo? Considere baixar um backup antes.')) return;
+  DB=seedData(); saveDB(DB); navigate('dashboard'); toast('Todos os dados foram apagados.');
+}
+
+/* ---------------------------- Boot ---------------------------- */
+buildNav();
+navigate('dashboard');
+document.getElementById('overlay').addEventListener('click', e=>{ if(e.target.id==='overlay') closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+</script>
+</body>
+</html>
